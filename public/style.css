@@ -1,0 +1,13 @@
+* {
+	margin: 0;
+	box-sizing: border-box;
+	scrollbar-width: none;
+}
+html, body {
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
+	padding: 0;
+	flex-direction: row;
+	background: #151921;
+}
