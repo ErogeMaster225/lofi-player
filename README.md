@@ -1,6 +1,6 @@
-# Svelte + Vite
+# Lofi Radio Player
 
-This template should help get you started developing with Svelte in Vite.
+Why this thing exists? So that I can listen to lofi while making a website to listen to lofi. To learn Svelte also.
 
 ## Recommended IDE Setup
 

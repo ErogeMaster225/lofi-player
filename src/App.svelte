@@ -14,7 +14,14 @@
 		/>
 	</div>
 	<div class="radio-controls">
-		<div class="control" />
+		<div class="center-space"></div>
+		<button class="control youtube-back"><div class="icons"><i class="fa-solid fa-backward-step"></i></div></button>
+		<button class="control control-main"><div class="icons"><i class="fa-solid fa-play"></i></div></button>
+		<button class="control youtube-forward"><div class="icons"><i class="fa-solid fa-forward-step"></i></div></button>
+		<button class="control youtube-volume"><div class="icons"><i class="fa-solid fa-volume"></i></div></button>
+		<div class="volume-slider">
+			<input type="range" name="volume-slider" id="volume-slider" min="0" max="100">
+		</div>
 	</div>
 </div>
 <div class="radio-overlay" />
@@ -67,5 +74,28 @@
 		bottom: 0;
 		z-index: 5;
 		overflow: hidden;
+		width: 100%;
+		margin-bottom: 20px;
+	}
+	.control {
+		background-color: transparent;
+		border-radius: 50%;
+		border: 2px solid #fff;
+		margin: 10px;
+		padding: 20px;
+		cursor: pointer;
+	}
+	.control-main {
+		padding: 35px;
+	}
+	.icons {
+		display: block;
+		width: 15px;
+		height: 15px;
+		text-align: center;
+	}
+	.center-space {
+		margin: 10px;
+		width: 180px;
 	}
 </style>
