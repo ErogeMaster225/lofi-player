@@ -1,12 +1,54 @@
 <script>
+	// @ts-nocheck
+	let youtubePlayer;
+	const loadVideo = () => {
+		(function loadYoutubeIFrameApiScript() {
+			const tag = document.createElement("script");
+			tag.src = "https://www.youtube.com/iframe_api";
+			const firstScriptTag = document.getElementsByTagName("script")[0];
+			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+			tag.onload = setupPlayer;
+		})();
+		function setupPlayer() {
+			YT.ready(function () {
+				youtubePlayer = new YT.Player("player", {
+					events: {
+						onReady: onPlayerReady,
+						onStateChange: onPlayerStateChange,
+					},
+				});
+			});
+		}
+		function onPlayerReady(event) {
+			event.target.playVideo();
+		}
+		function onPlayerStateChange(event) {
+			let videoStatuses = Object.entries(window.YT.PlayerState);
+			console.log(videoStatuses.find((status) => status[1] === event.data)[0]);
+		}
+	};
+	const handleClick = () => {
+		console.log("stopped");
+		youtubePlayer.pauseVideo();
+	};
+	if (document.readyState !== "loading") {
+		console.info(`document.readyState ==>`, document.readyState);
+		loadVideo();
+	} else {
+		document.addEventListener("DOMContentLoaded", function () {
+			console.info(`DOMContentLoaded ==>`, document.readyState);
+			loadVideo();
+		});
+	}
 </script>
 
 <div class="radio-player youtube fill">
 	<div class="youtube-video">
 		<iframe
+			id="player"
 			width="640"
 			height="360"
-			src="https://www.youtube.com/embed/7NOSDKb0HlU?autoplay=1&controls=0&modestbranding=1&disablekb=1&enablejsapi=1&iv_load_policy=3&playsinline=1"
+			src="https://www.youtube.com/embed/7NOSDKb0HlU?controls=0&modestbranding=1&disablekb=1&enablejsapi=1&iv_load_policy=3&playsinline=1"
 			title="YouTube video player"
 			frameborder="0"
 			allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -14,13 +56,13 @@
 		/>
 	</div>
 	<div class="radio-controls">
-		<div class="center-space"></div>
-		<button class="control youtube-back"><div class="icons"><i class="fa-solid fa-backward-step"></i></div></button>
-		<button class="control control-main"><div class="icons"><i class="fa-solid fa-play"></i></div></button>
-		<button class="control youtube-forward"><div class="icons"><i class="fa-solid fa-forward-step"></i></div></button>
-		<button class="control youtube-volume"><div class="icons"><i class="fa-solid fa-volume"></i></div></button>
+		<div class="center-space" />
+		<button class="control youtube-back"><div class="icons"><i class="fa-solid fa-backward-step" /></div></button>
+		<button on:click={handleClick} class="control control-main"><div class="icons"><i class="fa-solid fa-play" /></div></button>
+		<button class="control youtube-forward"><div class="icons"><i class="fa-solid fa-forward-step" /></div></button>
+		<button class="control youtube-volume"><div class="icons"><i class="fa-solid fa-volume" /></div></button>
 		<div class="volume-slider">
-			<input type="range" name="volume-slider" id="volume-slider" min="0" max="100">
+			<input type="range" name="volume-slider" id="volume-slider" min="0" max="100" />
 		</div>
 	</div>
 </div>
