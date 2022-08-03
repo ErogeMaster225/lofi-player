@@ -1,6 +1,8 @@
 <script>
 	// @ts-nocheck
 	let youtubePlayer;
+	let playerVolume = 100;
+        export const YOUTUBE_API = import.meta.env.VITE_YOUTUBE_API;
 	const loadVideo = () => {
 		(function loadYoutubeIFrameApiScript() {
 			const tag = document.createElement("script");
@@ -28,8 +30,13 @@
 		}
 	};
 	const handleClick = () => {
-		console.log("stopped");
-		youtubePlayer.pauseVideo();
+		console.log(YOUTUBE_API);
+		youtubePlayer.getPlayerState() == 1 ? youtubePlayer.pauseVideo() : youtubePlayer.playVideo();
+	};
+	const setVolume = () => {
+		let slider = document.getElementById("volume-slider");
+		slider.style.background = `linear-gradient(90deg, #fff ${playerVolume}%, #d7dcdf ${playerVolume + 0.1}%)`;
+		youtubePlayer.setVolume(playerVolume);
 	};
 	if (document.readyState !== "loading") {
 		console.info(`document.readyState ==>`, document.readyState);
@@ -62,7 +69,7 @@
 		<button class="control youtube-forward"><div class="icons"><i class="fa-solid fa-forward-step" /></div></button>
 		<button class="control youtube-volume"><div class="icons"><i class="fa-solid fa-volume" /></div></button>
 		<div class="volume-slider">
-			<input type="range" name="volume-slider" id="volume-slider" min="0" max="100" />
+			<input on:input={setVolume} bind:value={playerVolume} type="range" name="volume-slider" id="volume-slider" min="0" max="100" />
 		</div>
 	</div>
 </div>
@@ -80,7 +87,7 @@
 		height: 100vh;
 		border: none;
 		transform: translate(-50%, -50%);
-		/* pointer-events: none; */
+		pointer-events: none;
 	}
 	@media (min-aspect-ratio: 16 / 9) {
 		iframe {
@@ -139,5 +146,34 @@
 	.center-space {
 		margin: 10px;
 		width: 180px;
+	}
+	input[type="range"] {
+		height: 5px;
+		border-radius: 10px;
+		-webkit-appearance: none;
+		width: 100%;
+		background: #fff;
+	}
+	input[type="range"]:focus {
+		outline: none;
+	}
+	input[type="range"]::-webkit-slider-thumb {
+		box-shadow: 1px 1px 1px #000000;
+		border: 0px solid #000000;
+		height: 20px;
+		width: 20px;
+		border-radius: 20px;
+		background: #ffffff;
+		cursor: pointer;
+		-webkit-appearance: none;
+	}
+	input[type="range"]::-moz-range-thumb {
+		box-shadow: 1px 1px 1px #000000;
+		border: 0px solid #000000;
+		height: 35px;
+		width: 35px;
+		border-radius: 50px;
+		background: #ffffff;
+		cursor: pointer;
 	}
 </style>
