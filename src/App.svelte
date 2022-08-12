@@ -1,179 +1,306 @@
 <script>
-	// @ts-nocheck
-	let youtubePlayer;
-	let playerVolume = 100;
-        export const YOUTUBE_API = import.meta.env.VITE_YOUTUBE_API;
-	const loadVideo = () => {
-		(function loadYoutubeIFrameApiScript() {
-			const tag = document.createElement("script");
-			tag.src = "https://www.youtube.com/iframe_api";
-			const firstScriptTag = document.getElementsByTagName("script")[0];
-			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-			tag.onload = setupPlayer;
-		})();
-		function setupPlayer() {
-			YT.ready(function () {
-				youtubePlayer = new YT.Player("player", {
-					events: {
-						onReady: onPlayerReady,
-						onStateChange: onPlayerStateChange,
-					},
-				});
-			});
-		}
-		function onPlayerReady(event) {
-			event.target.playVideo();
-		}
-		function onPlayerStateChange(event) {
-			let videoStatuses = Object.entries(window.YT.PlayerState);
-			console.log(videoStatuses.find((status) => status[1] === event.data)[0]);
-		}
-	};
-	const handleClick = () => {
-		console.log(YOUTUBE_API);
-		youtubePlayer.getPlayerState() == 1 ? youtubePlayer.pauseVideo() : youtubePlayer.playVideo();
-	};
-	const setVolume = () => {
-		let slider = document.getElementById("volume-slider");
-		slider.style.background = `linear-gradient(90deg, #fff ${playerVolume}%, #d7dcdf ${playerVolume + 0.1}%)`;
-		youtubePlayer.setVolume(playerVolume);
-	};
-	if (document.readyState !== "loading") {
-		console.info(`document.readyState ==>`, document.readyState);
-		loadVideo();
-	} else {
-		document.addEventListener("DOMContentLoaded", function () {
-			console.info(`DOMContentLoaded ==>`, document.readyState);
-			loadVideo();
-		});
-	}
+    // @ts-nocheck
+    import { onMount } from "svelte";
+    let youtubePlayer;
+    let playerVolume = 100;
+    let isPlaying = false;
+    let isMuted = false;
+    export const YOUTUBE_API = import.meta.env.VITE_YOUTUBE_API;
+    import { channels } from "./assets/data.json";
+    let playlist = [];
+    const loadVideo = () => {
+        (function loadYoutubeIFrameApiScript() {
+            const tag = document.createElement("script");
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName("script")[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            tag.onload = setupPlayer;
+        })();
+        function setupPlayer() {
+            YT.ready(function () {
+                youtubePlayer = new YT.Player("player", {
+                    events: {
+                        onReady: onPlayerReady,
+                        onStateChange: onPlayerStateChange,
+                    },
+                });
+            });
+        }
+        function onPlayerReady(event) {
+            //event.target.playVideo();
+        }
+        function onPlayerStateChange(event) {
+            let videoStatuses = Object.entries(window.YT.PlayerState);
+            console.log(
+                videoStatuses.find((status) => status[1] === event.data)[0]
+            );
+        }
+    };
+    const setPlayback = () => {
+        if (youtubePlayer.getPlayerState() == 1) {
+            youtubePlayer.pauseVideo();
+            isPlaying = false;
+        } else {
+            youtubePlayer.playVideo();
+            isPlaying = true;
+        }
+    };
+    const setVolume = () => {
+        let slider = document.getElementById("volume-slider");
+        slider.style.background = `linear-gradient(90deg, #fff ${playerVolume}%, #b7bcbf ${
+            playerVolume + 0.1
+        }%)`;
+        youtubePlayer.setVolume(playerVolume);
+    };
+    const setMuted = () => {
+        let slider = document.getElementById("volume-slider");
+        if (youtubePlayer.isMuted() == 1) {
+            youtubePlayer.unMute();
+            isMuted = false;
+            playerVolume = youtubePlayer.getVolume();
+            slider.style.background = `linear-gradient(90deg, #fff ${playerVolume}%, #b7bcbf ${
+                playerVolume + 0.1
+            }%)`;
+        } else {
+            youtubePlayer.mute();
+            isMuted = true;
+            playerVolume = 0;
+            slider.style.background = `linear-gradient(90deg, #fff ${playerVolume}%, #b7bcbf ${
+                playerVolume + 0.1
+            }%)`;
+        }
+    };
+    const getLiveStreamRequest = (id) => {
+        const response = fetch(
+            "https://youtube.googleapis.com/youtube/v3/search?part=snippet&&channelId=" +
+                id +
+                "&channelType=any&eventType=live&type=video&key=" +
+                YOUTUBE_API,
+            {
+                headers: {
+                    Accept: "application/json",
+                },
+            }
+        );
+        return response;
+    };
+    const getLiveStream = () => {
+        channels.forEach((channel) => {
+            getLiveStreamRequest(channel.id)
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error(response.statusText);
+                })
+                .then((data) => {
+                    data.items.forEach((item) => {
+                        playlist.push({
+                            video_id: item.id.videoId,
+                            video_title: item.snippet.title,
+                            channel_id: item.snippet.channelId
+                        })
+                    });
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        });
+        console.log(playlist);
+    };
+    if (document.readyState !== "loading") {
+        console.info(`document.readyState ==>`, document.readyState);
+        loadVideo();
+    } else {
+        document.addEventListener("DOMContentLoaded", function () {
+            console.info(`DOMContentLoaded ==>`, document.readyState);
+            loadVideo();
+        });
+    }
+    onMount(() => {
+        getLiveStream();
+    });
 </script>
 
 <div class="radio-player youtube fill">
-	<div class="youtube-video">
-		<iframe
-			id="player"
-			width="640"
-			height="360"
-			src="https://www.youtube.com/embed/7NOSDKb0HlU?controls=0&modestbranding=1&disablekb=1&enablejsapi=1&iv_load_policy=3&playsinline=1"
-			title="YouTube video player"
-			frameborder="0"
-			allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-			allowfullscreen
-		/>
-	</div>
-	<div class="radio-controls">
-		<div class="center-space" />
-		<button class="control youtube-back"><div class="icons"><i class="fa-solid fa-backward-step" /></div></button>
-		<button on:click={handleClick} class="control control-main"><div class="icons"><i class="fa-solid fa-play" /></div></button>
-		<button class="control youtube-forward"><div class="icons"><i class="fa-solid fa-forward-step" /></div></button>
-		<button class="control youtube-volume"><div class="icons"><i class="fa-solid fa-volume" /></div></button>
-		<div class="volume-slider">
-			<input on:input={setVolume} bind:value={playerVolume} type="range" name="volume-slider" id="volume-slider" min="0" max="100" />
-		</div>
-	</div>
+    <div class="youtube-video">
+        <iframe
+            id="player"
+            width="640"
+            height="360"
+            src="https://www.youtube.com/embed/7NOSDKb0HlU?controls=0&modestbranding=1&disablekb=1&enablejsapi=1&iv_load_policy=3&playsinline=1"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+        />
+    </div>
+    <div class:hide={isPlaying} class="youtube-pause fill" />
+    <div class="radio-controls">
+        <div class="center-space" />
+        <button class="control youtube-back"
+            ><div class="icons">
+                <i class="fa-solid fa-backward-step" />
+            </div></button
+        >
+        <button on:click={setPlayback} class="control control-main"
+            ><div class="icons">
+                <i
+                    class={isPlaying
+                        ? " fa-solid fa-pause"
+                        : " fa-solid fa-play"}
+                />
+            </div></button
+        >
+        <button class="control youtube-forward"
+            ><div class="icons">
+                <i class="fa-solid fa-forward-step" />
+            </div></button
+        >
+        <button on:click={setMuted} class="control youtube-volume"
+            ><div class="icons">
+                <i
+                    class={isMuted
+                        ? "fa-solid fa-volume-xmark"
+                        : "fa-solid fa-volume"}
+                />
+            </div></button
+        >
+        <div class="volume-slider">
+            <input
+                on:input={setVolume}
+                bind:value={playerVolume}
+                type="range"
+                name="volume-slider"
+                id="volume-slider"
+                min="0"
+                max="100"
+            />
+        </div>
+    </div>
 </div>
 <div class="radio-overlay" />
 
 <style>
-	:root {
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-	}
-	iframe {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		width: 100vw;
-		height: 100vh;
-		border: none;
-		transform: translate(-50%, -50%);
-		pointer-events: none;
-	}
-	@media (min-aspect-ratio: 16 / 9) {
-		iframe {
-			height: 56.25vw;
-		}
-	}
-	.fill {
-		width: 100%;
-		min-width: 100%;
-		max-width: 100%;
-		height: 100%;
-		min-height: 100%;
-		max-height: 100%;
-	}
-	.youtube::after {
-		background: rgb(0, 0, 0);
-		background: linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 1) 100%);
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		content: "";
-		overflow: hidden;
-		pointer-events: none;
-	}
-	.radio-controls {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		position: absolute;
-		left: 0;
-		bottom: 0;
-		z-index: 5;
-		overflow: hidden;
-		width: 100%;
-		margin-bottom: 20px;
-	}
-	.control {
-		background-color: transparent;
-		border-radius: 50%;
-		border: 2px solid #fff;
-		margin: 10px;
-		padding: 20px;
-		cursor: pointer;
-	}
-	.control-main {
-		padding: 35px;
-	}
-	.icons {
-		display: block;
-		width: 15px;
-		height: 15px;
-		text-align: center;
-	}
-	.center-space {
-		margin: 10px;
-		width: 180px;
-	}
-	input[type="range"] {
-		height: 5px;
-		border-radius: 10px;
-		-webkit-appearance: none;
-		width: 100%;
-		background: #fff;
-	}
-	input[type="range"]:focus {
-		outline: none;
-	}
-	input[type="range"]::-webkit-slider-thumb {
-		box-shadow: 1px 1px 1px #000000;
-		border: 0px solid #000000;
-		height: 20px;
-		width: 20px;
-		border-radius: 20px;
-		background: #ffffff;
-		cursor: pointer;
-		-webkit-appearance: none;
-	}
-	input[type="range"]::-moz-range-thumb {
-		box-shadow: 1px 1px 1px #000000;
-		border: 0px solid #000000;
-		height: 35px;
-		width: 35px;
-		border-radius: 50px;
-		background: #ffffff;
-		cursor: pointer;
-	}
+    :root {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    }
+    iframe {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+    @media (min-aspect-ratio: 16 / 9) {
+        iframe {
+            height: 56.25vw;
+        }
+    }
+    .hide {
+        display: none !important;
+    }
+    .youtube-pause {
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 2;
+        position: absolute;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+    }
+    .fill {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: 100%;
+        min-height: 100%;
+        max-height: 100%;
+    }
+    .youtube::after {
+        background: rgb(0, 0, 0);
+        background: linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0) 20%,
+            rgba(0, 0, 0, 0) 80%,
+            rgba(0, 0, 0, 1) 100%
+        );
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        content: "";
+        overflow: hidden;
+        pointer-events: none;
+    }
+    .radio-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        z-index: 5;
+        overflow: hidden;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .control {
+        background-color: transparent;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        margin: 10px;
+        padding: 20px;
+        cursor: pointer;
+    }
+    .control-main {
+        padding: 35px;
+    }
+    .icons {
+        display: block;
+        width: 15px;
+        height: 15px;
+        text-align: center;
+    }
+    .fa-solid {
+        color: #fff;
+    }
+    .center-space {
+        margin: 10px;
+        width: 180px;
+    }
+    input[type="range"] {
+        height: 5px;
+        border-radius: 10px;
+        -webkit-appearance: none;
+        width: 100%;
+        background: #fff;
+    }
+    input[type="range"]:focus {
+        outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        box-shadow: 1px 1px 1px #000000;
+        border: 0px solid #000000;
+        height: 20px;
+        width: 20px;
+        border-radius: 20px;
+        background: #ffffff;
+        cursor: pointer;
+        -webkit-appearance: none;
+    }
+    input[type="range"]::-moz-range-thumb {
+        box-shadow: 1px 1px 1px #000000;
+        border: 0px solid #000000;
+        height: 35px;
+        width: 35px;
+        border-radius: 50px;
+        background: #ffffff;
+        cursor: pointer;
+    }
 </style>

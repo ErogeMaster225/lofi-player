@@ -1,0 +1,56 @@
+{
+	"channels": [
+		{
+			"name": "Lofi Girl",
+			"id": "UCSJ4gkVC6NrvII8umztf0Ow",
+			"social": {
+				"discord": "https://discord.com/invite/lofigirl",
+				"facebook": "https://www.facebook.com/lofigirl",
+				"instagram": "https://www.instagram.com/lofigirl",
+				"reddit": "https://www.reddit.com/r/LofiGirl",
+				"spotify": "https://open.spotify.com/playlist/0vvXsWCC9xrXsKd4FyS8kM?si=sQXk5Y-GTUeB7OlCRKZ__Q",
+				"twitter": "https://twitter.com/lofigirl",
+				"website": "https://lofigirl.com/",
+				"youtube": "https://www.youtube.com/c/LofiGirl"
+			}
+		},
+		{
+			"name": "Chillhop Music",
+			"id": "UCOxqgCwgOqC2lMqC5PYz_Dg",
+			"social": {
+				"discord": "https://discord.com/invite/chillhop",
+				"facebook": "https://www.facebook.com/groups/1561371024098016",
+				"instagram": "https://www.instagram.com/chillhopmusic",
+				"reddit": "https://www.reddit.com/r/chillhop",
+				"spotify": "https://open.spotify.com/playlist/0CFuMybe6s77w6QQrJjW7d?si=3co_7Q6XT0OJZwkBlqWoDQ",
+				"website": "https://chillhop.com/",
+				"youtube": "https://www.youtube.com/c/Chillhopdotcom"
+			}
+		},
+		{
+			"name": "nourish.",
+			"id": "UC7tdoGx0eQfRJm9Qj6GCs0A",
+			"social": {
+				"discord": "https://discord.com/invite/8CTEEjW",
+				"facebook": "https://www.facebook.com/nourishmusic",
+				"instagram": "https://www.instagram.com/nourishmusic",
+				"spotify": "https://open.spotify.com/user/nourish.",
+				"twitter": "https://twitter.com/nourishmusic",
+				"website": "https://www.nourish.live/",
+				"youtube": "https://www.youtube.com/c/nourish"
+			}
+		},
+		{
+			"name": "College Music",
+			"id": "UCWzZ5TIGoZ6o-KtbGCyhnhg",
+			"social": {
+				"facebook": "https://www.facebook.com/collegemusic",
+				"instagram": "https://www.instagram.com/collegemusic",
+				"spotify": "https://open.spotify.com/playlist/32hJXySZtt9YvnwcYINGZ0",
+				"twitter": "https://twitter.com/collegemusicyt",
+				"website": "https://www.collegemusic.co.uk/",
+				"youtube": "https://www.youtube.com/c/CollegeMusic"
+			}
+		}
+	]
+}
